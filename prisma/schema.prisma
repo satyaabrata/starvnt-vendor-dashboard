@@ -1,0 +1,57 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String         @id @default(cuid())
+  email         String         @unique
+  name          String?
+  passwordHash  String
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  vendorProfile VendorProfile?
+}
+
+model VendorProfile {
+  id            String         @id @default(cuid())
+  userId        String         @unique
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  businessName  String
+  category      String
+  description   String?
+  location      String?
+  phone         String?
+  contactEmail  String?
+  website       String?
+  portfolioUrls String[]
+  pricingMin    Float?
+  pricingMax    Float?
+  isActive      Boolean        @default(true)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  inquiries     EventInquiry[]
+}
+
+model EventInquiry {
+  id          String        @id @default(cuid())
+  vendorId    String
+  vendor      VendorProfile @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  clientName  String
+  clientEmail String
+  clientPhone String?
+  eventType   String
+  eventDate   DateTime
+  venue       String?
+  guestCount  Int?
+  budget      Float?
+  message     String?
+  status      String        @default("pending")
+  notes       String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
