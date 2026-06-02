@@ -7,35 +7,148 @@ datasource db {
   provider = "postgresql"
 }
 
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+enum Role {
+  ADMIN
+  VENDOR
+}
+
+enum VendorStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  SUSPENDED
+}
+
+enum DocumentType {
+  GST
+  PAN
+  LICENSE
+  AGREEMENT
+  INSURANCE
+  OTHER
+}
+
+enum POStatus {
+  DRAFT
+  SENT
+  ACKNOWLEDGED
+  IN_PROGRESS
+  DELIVERED
+  CANCELLED
+}
+
+enum ContractStatus {
+  DRAFT
+  ACTIVE
+  EXPIRED
+  TERMINATED
+}
+
+enum InvoiceStatus {
+  PENDING
+  APPROVED
+  PAID
+  OVERDUE
+  CANCELLED
+}
+
+enum InquiryStatus {
+  PENDING
+  CONFIRMED
+  REJECTED
+  COMPLETED
+}
+
+enum NotificationType {
+  CONTRACT_EXPIRY
+  DOCUMENT_EXPIRY
+  INVOICE_DUE
+  NEW_INQUIRY
+  PO_UPDATE
+  VENDOR_APPROVED
+  VENDOR_REJECTED
+  GENERAL
+}
+
+// ─── Core Models ──────────────────────────────────────────────────────────────
+
 model User {
   id            String         @id @default(cuid())
   email         String         @unique
   name          String?
   passwordHash  String
+  role          Role           @default(VENDOR)
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
   vendorProfile VendorProfile?
+  notifications Notification[]
 }
 
 model VendorProfile {
-  id            String         @id @default(cuid())
-  userId        String         @unique
-  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  businessName  String
-  category      String
-  description   String?
-  location      String?
-  phone         String?
-  contactEmail  String?
-  website       String?
-  portfolioUrls String[]
-  pricingMin    Float?
-  pricingMax    Float?
-  isActive      Boolean        @default(true)
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  inquiries     EventInquiry[]
+  id             String        @id @default(cuid())
+  userId         String        @unique
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Business Info
+  businessName   String
+  category       String
+  description    String?
+  location       String?
+  phone          String?
+  contactEmail   String?
+  website        String?
+  portfolioUrls  String[]
+
+  // Compliance / Onboarding
+  gstNumber      String?
+  panNumber      String?
+  licenseNumber  String?
+  status         VendorStatus  @default(PENDING)
+  approvedAt     DateTime?
+  approvedById   String?
+  rejectionNote  String?
+
+  // Pricing
+  pricingMin     Float?
+  pricingMax     Float?
+
+  // Performance
+  avgRating      Float?
+  totalRatings   Int           @default(0)
+
+  isActive       Boolean       @default(true)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  // Relations
+  inquiries          EventInquiry[]
+  documents          VendorDocument[]
+  purchaseOrders     PurchaseOrder[]
+  contracts          Contract[]
+  invoices           Invoice[]
+  performanceReviews PerformanceReview[]
 }
+
+// ─── Vendor Onboarding & Compliance ──────────────────────────────────────────
+
+model VendorDocument {
+  id          String        @id @default(cuid())
+  vendorId    String
+  vendor      VendorProfile @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  type        DocumentType
+  name        String
+  fileUrl     String
+  expiryDate  DateTime?
+  isVerified  Boolean       @default(false)
+  verifiedAt  DateTime?
+  notes       String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+// ─── Event Inquiries ─────────────────────────────────────────────────────────
 
 model EventInquiry {
   id          String        @id @default(cuid())
@@ -50,8 +163,119 @@ model EventInquiry {
   guestCount  Int?
   budget      Float?
   message     String?
-  status      String        @default("pending")
+  status      InquiryStatus @default(PENDING)
+  response    String?
   notes       String?
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
+}
+
+// ─── Purchase Orders ─────────────────────────────────────────────────────────
+
+model PurchaseOrder {
+  id           String        @id @default(cuid())
+  poNumber     String        @unique
+  vendorId     String
+  vendor       VendorProfile @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  title        String
+  description  String?
+  items        Json
+  subtotal     Float
+  tax          Float         @default(0)
+  totalAmount  Float
+  status       POStatus      @default(DRAFT)
+  orderDate    DateTime      @default(now())
+  expectedDate DateTime?
+  deliveredAt  DateTime?
+  deliveryNote String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  invoices     Invoice[]
+}
+
+// ─── Contracts ────────────────────────────────────────────────────────────────
+
+model Contract {
+  id              String         @id @default(cuid())
+  contractNumber  String         @unique
+  vendorId        String
+  vendor          VendorProfile  @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  title           String
+  description     String?
+  fileUrl         String?
+  value           Float?
+  startDate       DateTime
+  endDate         DateTime
+  status          ContractStatus @default(DRAFT)
+  reminderSent    Boolean        @default(false)
+  terminatedAt    DateTime?
+  terminationNote String?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+}
+
+// ─── Invoices & Payments ──────────────────────────────────────────────────────
+
+model Invoice {
+  id            String        @id @default(cuid())
+  invoiceNumber String        @unique
+  vendorId      String
+  vendor        VendorProfile @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  poId          String?
+  purchaseOrder PurchaseOrder? @relation(fields: [poId], references: [id])
+  description   String?
+  items         Json?
+  subtotal      Float
+  tax           Float         @default(0)
+  totalAmount   Float
+  status        InvoiceStatus @default(PENDING)
+  dueDate       DateTime?
+  paidAt        DateTime?
+  fileUrl       String?
+  notes         String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  payments      Payment[]
+}
+
+model Payment {
+  id          String   @id @default(cuid())
+  invoiceId   String
+  invoice     Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  amount      Float
+  method      String?
+  reference   String?
+  paidAt      DateTime @default(now())
+  notes       String?
+  createdAt   DateTime @default(now())
+}
+
+// ─── Performance Reviews ──────────────────────────────────────────────────────
+
+model PerformanceReview {
+  id                 String        @id @default(cuid())
+  vendorId           String
+  vendor             VendorProfile @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  overallRating      Int
+  deliveryScore      Int?
+  qualityScore       Int?
+  communicationScore Int?
+  comment            String?
+  reviewedBy         String?
+  reviewedAt         DateTime      @default(now())
+  createdAt          DateTime      @default(now())
+}
+
+// ─── Notifications ────────────────────────────────────────────────────────────
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  message   String
+  type      NotificationType
+  isRead    Boolean          @default(false)
+  link      String?
+  createdAt DateTime         @default(now())
 }

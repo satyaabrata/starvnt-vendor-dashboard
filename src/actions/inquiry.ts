@@ -73,7 +73,7 @@ export async function updateInquiryStatus(
 
   await prisma.eventInquiry.update({
     where: { id: inquiryId },
-    data: { status, notes: notes || inquiry.notes },
+    data: { status: status as never, notes: notes || inquiry.notes },
   });
 
   revalidatePath("/dashboard/inquiries");

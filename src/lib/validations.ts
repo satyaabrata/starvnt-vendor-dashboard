@@ -6,8 +6,8 @@ export const RegisterSchema = z.object({
   password: z
     .string()
     .min(8, "Password must be at least 8 characters")
-    .regex(/[a-zA-Z]/, "Password must contain at least one letter")
-    .regex(/[0-9]/, "Password must contain at least one number"),
+    .regex(/[a-zA-Z]/, "Must contain at least one letter")
+    .regex(/[0-9]/, "Must contain at least one number"),
 });
 
 export const LoginSchema = z.object({
@@ -23,8 +23,70 @@ export const VendorProfileSchema = z.object({
   phone: z.string().optional(),
   contactEmail: z.email("Invalid email").optional().or(z.literal("")),
   website: z.string().url("Invalid URL").optional().or(z.literal("")),
+  gstNumber: z.string().optional(),
+  panNumber: z.string().optional(),
+  licenseNumber: z.string().optional(),
   pricingMin: z.coerce.number().min(0).optional(),
   pricingMax: z.coerce.number().min(0).optional(),
+});
+
+export const DocumentSchema = z.object({
+  type: z.enum(["GST", "PAN", "LICENSE", "AGREEMENT", "INSURANCE", "OTHER"]),
+  name: z.string().min(1, "Document name is required"),
+  fileUrl: z.string().url("Must be a valid URL"),
+  expiryDate: z.string().optional(),
+  notes: z.string().optional(),
+});
+
+export const POSchema = z.object({
+  vendorId: z.string().min(1, "Vendor is required"),
+  title: z.string().min(2, "Title is required"),
+  description: z.string().optional(),
+  tax: z.coerce.number().min(0).default(0),
+  expectedDate: z.string().optional(),
+});
+
+export const POItemSchema = z.object({
+  name: z.string().min(1),
+  qty: z.coerce.number().min(1),
+  unitPrice: z.coerce.number().min(0),
+});
+
+export const ContractSchema = z.object({
+  vendorId: z.string().min(1, "Vendor is required"),
+  title: z.string().min(2, "Title is required"),
+  description: z.string().optional(),
+  fileUrl: z.string().url("Must be a valid URL").optional().or(z.literal("")),
+  value: z.coerce.number().min(0).optional(),
+  startDate: z.string().min(1, "Start date required"),
+  endDate: z.string().min(1, "End date required"),
+});
+
+export const InvoiceSchema = z.object({
+  vendorId: z.string().min(1, "Vendor is required"),
+  poId: z.string().optional(),
+  description: z.string().optional(),
+  subtotal: z.coerce.number().min(0, "Amount required"),
+  tax: z.coerce.number().min(0).default(0),
+  dueDate: z.string().optional(),
+  fileUrl: z.string().url("Must be a valid URL").optional().or(z.literal("")),
+  notes: z.string().optional(),
+});
+
+export const PaymentSchema = z.object({
+  amount: z.coerce.number().min(1, "Amount required"),
+  method: z.string().min(1, "Payment method required"),
+  reference: z.string().optional(),
+  notes: z.string().optional(),
+});
+
+export const PerformanceReviewSchema = z.object({
+  vendorId: z.string().min(1, "Vendor required"),
+  overallRating: z.coerce.number().min(1).max(5),
+  deliveryScore: z.coerce.number().min(1).max(5).optional(),
+  qualityScore: z.coerce.number().min(1).max(5).optional(),
+  communicationScore: z.coerce.number().min(1).max(5).optional(),
+  comment: z.string().optional(),
 });
 
 export const InquirySchema = z.object({
@@ -38,8 +100,3 @@ export const InquirySchema = z.object({
   budget: z.coerce.number().min(0).optional(),
   message: z.string().optional(),
 });
-
-export type RegisterInput = z.infer<typeof RegisterSchema>;
-export type LoginInput = z.infer<typeof LoginSchema>;
-export type VendorProfileInput = z.infer<typeof VendorProfileSchema>;
-export type InquiryInput = z.infer<typeof InquirySchema>;

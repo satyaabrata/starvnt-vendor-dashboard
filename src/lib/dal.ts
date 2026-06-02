@@ -10,6 +10,13 @@ export const verifySession = cache(async () => {
   return session;
 });
 
+export const verifyAdmin = cache(async () => {
+  const session = await getSession();
+  if (!session?.userId) redirect("/login");
+  if (session.role !== "ADMIN") redirect("/dashboard");
+  return session;
+});
+
 export const getCurrentUser = cache(async () => {
   const session = await getSession();
   if (!session?.userId) return null;

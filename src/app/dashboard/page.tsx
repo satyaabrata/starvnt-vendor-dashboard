@@ -22,10 +22,10 @@ export default async function DashboardPage() {
   const inquiries: EventInquiry[] = profile?.inquiries ?? [];
 
   const totalInquiries = inquiries.length;
-  const confirmed = inquiries.filter((i) => i.status === "confirmed").length;
-  const pending = inquiries.filter((i) => i.status === "pending").length;
+  const confirmed = inquiries.filter((i) => i.status === "CONFIRMED").length;
+  const pending = inquiries.filter((i) => i.status === "PENDING").length;
   const totalRevenue = inquiries
-    .filter((i) => i.status === "confirmed" && i.budget)
+    .filter((i) => i.status === "CONFIRMED" && i.budget)
     .reduce((sum, i) => sum + (i.budget ?? 0), 0);
 
   const monthlyData = Array.from({ length: 6 }, (_, idx) => {
@@ -41,8 +41,8 @@ export default async function DashboardPage() {
   const statusData = [
     { name: "Pending", value: pending, color: "#f59e0b" },
     { name: "Confirmed", value: confirmed, color: "#10b981" },
-    { name: "Rejected", value: inquiries.filter((i) => i.status === "rejected").length, color: "#ef4444" },
-    { name: "Completed", value: inquiries.filter((i) => i.status === "completed").length, color: "#6366f1" },
+    { name: "Rejected", value: inquiries.filter((i) => i.status === "REJECTED").length, color: "#ef4444" },
+    { name: "Completed", value: inquiries.filter((i) => i.status === "COMPLETED").length, color: "#6366f1" },
   ].filter((d) => d.value > 0);
 
   return (

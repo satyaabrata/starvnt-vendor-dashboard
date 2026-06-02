@@ -12,65 +12,46 @@ export type AuthState = {
 } | undefined;
 
 export async function register(state: AuthState, formData: FormData): Promise<AuthState> {
-  const raw = {
+  const result = RegisterSchema.safeParse({
     name: formData.get("name"),
     email: formData.get("email"),
     password: formData.get("password"),
-  };
-
-  const result = RegisterSchema.safeParse(raw);
-  if (!result.success) {
-    return { errors: result.error.flatten().fieldErrors };
-  }
+  });
+  if (!result.success) return { errors: result.error.flatten().fieldErrors };
 
   const { name, email, password } = result.data;
-
   const existing = await prisma.user.findUnique({ where: { email } });
-  if (existing) {
-    return { errors: { email: ["An account with this email already exists"] } };
-  }
+  if (existing) return { errors: { email: ["An account with this email already exists"] } };
 
   const passwordHash = await bcrypt.hash(password, 12);
   const user = await prisma.user.create({
-    data: { name, email, passwordHash },
-  });
-
-  await prisma.vendorProfile.create({
     data: {
-      userId: user.id,
-      businessName: name,
-      category: "General",
+      name, email, passwordHash, role: "VENDOR",
+      vendorProfile: { create: { businessName: name, category: "General" } },
     },
   });
 
-  await createSession(user.id, email, name);
+  await createSession(user.id, email, "VENDOR", name);
   redirect("/dashboard");
 }
 
 export async function login(state: AuthState, formData: FormData): Promise<AuthState> {
-  const raw = {
+  const result = LoginSchema.safeParse({
     email: formData.get("email"),
     password: formData.get("password"),
-  };
-
-  const result = LoginSchema.safeParse(raw);
-  if (!result.success) {
-    return { errors: result.error.flatten().fieldErrors };
-  }
+  });
+  if (!result.success) return { errors: result.error.flatten().fieldErrors };
 
   const { email, password } = result.data;
-
   const user = await prisma.user.findUnique({ where: { email } });
-  if (!user) {
-    return { message: "Invalid email or password" };
-  }
+  if (!user) return { message: "Invalid email or password" };
 
   const isValid = await bcrypt.compare(password, user.passwordHash);
-  if (!isValid) {
-    return { message: "Invalid email or password" };
-  }
+  if (!isValid) return { message: "Invalid email or password" };
 
-  await createSession(user.id, email, user.name);
+  await createSession(user.id, email, user.role as "ADMIN" | "VENDOR", user.name);
+
+  if (user.role === "ADMIN") redirect("/admin");
   redirect("/dashboard");
 }
 

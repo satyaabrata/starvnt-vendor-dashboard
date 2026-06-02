@@ -2,31 +2,36 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, User, ClipboardList, ShoppingCart, FileText, Receipt, Star } from "lucide-react";
+import {
+  LayoutDashboard, Users, ShoppingCart, FileText,
+  Receipt, Star, Shield, BarChart3, Bell,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { href: "/dashboard", label: "Overview", icon: LayoutDashboard, exact: true },
-  { href: "/dashboard/inquiries", label: "Inquiries", icon: ClipboardList },
-  { href: "/dashboard/purchase-orders", label: "Purchase Orders", icon: ShoppingCart },
-  { href: "/dashboard/contracts", label: "Contracts", icon: FileText },
-  { href: "/dashboard/invoices", label: "Invoices", icon: Receipt },
-  { href: "/dashboard/performance", label: "My Performance", icon: Star },
-  { href: "/dashboard/profile", label: "Profile", icon: User },
+  { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
+  { href: "/admin/vendors", label: "Vendors", icon: Users },
+  { href: "/admin/purchase-orders", label: "Purchase Orders", icon: ShoppingCart },
+  { href: "/admin/contracts", label: "Contracts", icon: FileText },
+  { href: "/admin/invoices", label: "Invoices", icon: Receipt },
+  { href: "/admin/performance", label: "Performance", icon: Star },
+  { href: "/admin/compliance", label: "Compliance", icon: Shield },
+  { href: "/admin/reports", label: "Reports", icon: BarChart3 },
+  { href: "/admin/notifications", label: "Notifications", icon: Bell },
 ];
 
-export function Sidebar() {
+export function AdminSidebar() {
   const pathname = usePathname();
   return (
     <aside className="w-64 bg-sidebar text-sidebar-foreground flex flex-col shrink-0">
       <div className="p-6 border-b border-sidebar-border">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-            <Star className="w-4 h-4 text-white fill-white" />
+            <Shield className="w-4 h-4 text-white" />
           </div>
           <div>
             <p className="font-bold text-sm">StarVnt</p>
-            <p className="text-xs text-sidebar-foreground/60">Vendor Portal</p>
+            <p className="text-xs text-sidebar-foreground/60">Admin Portal</p>
           </div>
         </div>
       </div>
@@ -44,14 +49,14 @@ export function Sidebar() {
                   : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
               )}
             >
-              <Icon className="w-4 h-4" />
+              <Icon className="w-4 h-4 shrink-0" />
               {label}
             </Link>
           );
         })}
       </nav>
       <div className="p-4 border-t border-sidebar-border text-xs text-sidebar-foreground/40 text-center">
-        StarVnt Entertainment © 2025
+        StarVnt VMS Admin © 2025
       </div>
     </aside>
   );
