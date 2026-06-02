@@ -22,17 +22,39 @@ const STATUS_COLORS: Record<string, string> = {
   SUSPENDED:"bg-orange-100 text-orange-700 border-orange-200",
 };
 
-function StarRating({ name, label }: { name: string; label: string }) {
+function StarRating({ name, label, required, error, resetKey }: { name: string; label: string; required?: boolean; error?: string; resetKey?: number }) {
   const [val, setVal] = useState(0);
+  const [hover, setHover] = useState(0);
+
+  // Reset when resetKey changes (after successful submit)
+  useState(() => { setVal(0); setHover(0); });
+
   return (
     <div className="space-y-1">
-      <Label className="text-xs">{label}</Label>
-      <div className="flex gap-1">
-        {[1,2,3,4,5].map((s) => (
-          <button key={s} type="button" onClick={() => setVal(s)} className={`text-lg ${s <= val ? "text-amber-400" : "text-slate-300"}`}>★</button>
+      <Label className="text-xs">
+        {label} {required && <span className="text-red-500">*</span>}
+      </Label>
+      <div className="flex gap-0.5 items-center">
+        {[1, 2, 3, 4, 5].map((s) => (
+          <button
+            key={s}
+            type="button"
+            onClick={() => setVal(s)}
+            onMouseEnter={() => setHover(s)}
+            onMouseLeave={() => setHover(0)}
+            className={`text-2xl transition-colors leading-none ${
+              s <= (hover || val) ? "text-amber-400" : "text-slate-200"
+            } hover:scale-110 transition-transform`}
+          >
+            ★
+          </button>
         ))}
-        <input type="hidden" name={name} value={val} />
+        {val > 0 && (
+          <span className="text-xs text-slate-400 ml-2">{val}/5</span>
+        )}
       </div>
+      <input type="hidden" name={name} value={val} />
+      {error && <p className="text-xs text-red-500">{error}</p>}
     </div>
   );
 }
@@ -57,6 +79,7 @@ export function VendorDetailView({ vendor }: { vendor: never }) {
   const [rejectNote, setRejectNote] = useState("");
   const [showReject, setShowReject] = useState(false);
   const [reviewState, reviewAction, reviewPending] = useActionState(createReview, undefined);
+  const [resetKey, setResetKey] = useState(0);
 
   const handleApprove = () => startTransition(() => {
     approveVendor(v.id).then((r) => { r.success ? toast.success("Vendor approved!") : toast.error("Failed"); });
@@ -215,20 +238,48 @@ export function VendorDetailView({ vendor }: { vendor: never }) {
             <Card className="border-0 shadow-sm">
               <CardHeader className="pb-3"><CardTitle className="text-sm font-semibold">Add Performance Review</CardTitle></CardHeader>
               <CardContent>
-                <form action={reviewAction} className="space-y-4">
+                <form
+                  key={resetKey}
+                  action={async (fd) => {
+                    await reviewAction(fd);
+                    setResetKey((k) => k + 1);
+                  }}
+                  className="space-y-4"
+                >
                   <input type="hidden" name="vendorId" value={v.id} />
-                  <StarRating name="overallRating" label="Overall Rating *" />
-                  <StarRating name="deliveryScore" label="Delivery" />
-                  <StarRating name="qualityScore" label="Quality" />
-                  <StarRating name="communicationScore" label="Communication" />
+
+                  {reviewState?.success && (
+                    <div className="bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-lg px-3 py-2 text-xs font-medium">
+                      ✓ {reviewState.message}
+                    </div>
+                  )}
+
+                  <StarRating
+                    name="overallRating"
+                    label="Overall Rating"
+                    required
+                    error={reviewState?.errors?.overallRating?.[0]}
+                    resetKey={resetKey}
+                  />
+                  <StarRating name="deliveryScore" label="Delivery" resetKey={resetKey} />
+                  <StarRating name="qualityScore" label="Quality" resetKey={resetKey} />
+                  <StarRating name="communicationScore" label="Communication" resetKey={resetKey} />
+
                   <div className="space-y-1.5">
                     <Label htmlFor="comment" className="text-xs">Comment</Label>
-                    <textarea id="comment" name="comment" rows={3} placeholder="Write your review…" className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none" />
+                    <textarea
+                      id="comment"
+                      name="comment"
+                      rows={3}
+                      placeholder="Write your review…"
+                      className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
+                    />
                   </div>
+
                   <Button type="submit" size="sm" disabled={reviewPending} className="flex items-center gap-1.5">
-                    <Star className="w-3.5 h-3.5" /> {reviewPending ? "Submitting…" : "Submit Review"}
+                    <Star className="w-3.5 h-3.5" />
+                    {reviewPending ? "Submitting…" : "Submit Review"}
                   </Button>
-                  {reviewState?.success && <p className="text-xs text-emerald-600">{reviewState.message}</p>}
                 </form>
               </CardContent>
             </Card>
