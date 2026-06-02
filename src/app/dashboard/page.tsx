@@ -12,11 +12,7 @@ export default async function DashboardPage() {
 
   const profile = await prisma.vendorProfile.findUnique({
     where: { userId: session.userId },
-    include: {
-      inquiries: {
-        orderBy: { createdAt: "desc" },
-      },
-    },
+    include: { inquiries: { orderBy: { createdAt: "desc" } } },
   });
 
   const inquiries: EventInquiry[] = profile?.inquiries ?? [];
@@ -32,10 +28,10 @@ export default async function DashboardPage() {
     const month = subMonths(new Date(), 5 - idx);
     const start = startOfMonth(month);
     const end = startOfMonth(subMonths(month, -1));
-    const count = inquiries.filter(
-      (i) => i.createdAt >= start && i.createdAt < end
-    ).length;
-    return { month: format(month, "MMM"), count };
+    return {
+      month: format(month, "MMM"),
+      count: inquiries.filter((i) => i.createdAt >= start && i.createdAt < end).length,
+    };
   });
 
   const statusData = [
