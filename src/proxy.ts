@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { decrypt } from "@/lib/session";
-import { cookies } from "next/headers";
 
 const adminRoutes = ["/admin"];
 const vendorRoutes = ["/dashboard"];
@@ -12,8 +11,8 @@ export default async function proxy(req: NextRequest) {
   const isVendorRoute = vendorRoutes.some((r) => path.startsWith(r));
   const isPublic = publicRoutes.includes(path);
 
-  const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get("session")?.value;
+  // Use req.cookies directly — synchronous, correct for proxy/middleware
+  const sessionCookie = req.cookies.get("session")?.value;
   const session = await decrypt(sessionCookie);
 
   if ((isAdminRoute || isVendorRoute) && !session?.userId) {
