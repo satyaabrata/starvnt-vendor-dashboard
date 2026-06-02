@@ -25,10 +25,10 @@ export default async function Home() {
         </div>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Button size="lg" className="text-base px-8" render={<Link href="/login" />}>
+          <Button size="lg" className="text-base px-8" nativeButton={false} render={<Link href="/login" />}>
             Sign In
           </Button>
-          <Button size="lg" variant="outline" className="text-base px-8 bg-transparent border-white/20 text-white hover:bg-white/10" render={<Link href="/register" />}>
+          <Button size="lg" variant="outline" className="text-base px-8 bg-transparent border-white/20 text-white hover:bg-white/10" nativeButton={false} render={<Link href="/register" />}>
             Create Account
           </Button>
         </div>
