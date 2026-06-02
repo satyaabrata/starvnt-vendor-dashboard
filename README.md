@@ -1,36 +1,148 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# StarVnt Vendor Booking Dashboard
 
-## Getting Started
+A production-ready Vendor Booking Dashboard built as a technical assessment for StarVnt Entertainment.
 
-First, run the development server:
+**GitHub:** https://github.com/satyaabrata/starvnt-vendor-dashboard
+
+---
+
+## Features
+
+- **Authentication** — Secure register/login/logout with JWT sessions stored in HttpOnly cookies (jose + bcryptjs)
+- **Vendor Profile Management** — Create and update your business profile: name, category, description, location, pricing, contact details
+- **Event Inquiry Management** — View, filter, and manage incoming booking requests with status updates (pending / confirmed / rejected / completed)
+- **Dashboard Analytics** — Stats cards, 6-month line chart, status donut chart, recent inquiries table
+- **Public Inquiry Form** — Shareable URL for clients to send booking requests directly
+- **Responsive Design** — Mobile-first layout with collapsible sidebar
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Framework | Next.js 16 (App Router, Server Actions) |
+| Language | TypeScript |
+| Auth | JWT (jose) + bcryptjs, cookie-based sessions |
+| Database | PostgreSQL via Supabase |
+| ORM | Prisma 7 (custom output path) |
+| UI | shadcn/ui v4 (Base UI) + Tailwind CSS v4 |
+| Charts | Recharts |
+| Forms | React `useActionState` + Zod validation |
+| Deploy | Vercel |
+
+---
+
+## Architecture
+
+```
+src/
+├── actions/          # Server Actions (auth, vendor, inquiry)
+├── app/
+│   ├── dashboard/    # Protected dashboard pages
+│   │   ├── page.tsx          # Analytics overview
+│   │   ├── profile/          # Vendor profile management
+│   │   └── inquiries/        # Inquiry management
+│   ├── login/        # Login page
+│   ├── register/     # Registration page
+│   ├── inquire/[id]/ # Public client inquiry form
+│   └── api/seed/     # Demo data seeder (dev only)
+├── components/
+│   ├── auth/         # Login & register forms
+│   ├── dashboard/    # Sidebar, header, charts, stats
+│   ├── inquiries/    # Inquiry table, detail dialog, public form
+│   ├── profile/      # Profile edit form
+│   └── ui/           # shadcn/ui base components
+├── lib/
+│   ├── db.ts         # Prisma client singleton (with Pg adapter)
+│   ├── session.ts    # JWT encrypt/decrypt, cookie management
+│   ├── dal.ts        # Data Access Layer (verifySession, getCurrentUser)
+│   └── validations.ts # Zod schemas
+└── proxy.ts          # Route protection (Next.js 16 Proxy)
+```
+
+### Authentication Flow
+
+1. User submits credentials via Server Action
+2. Server validates with Zod, hashes/checks password with bcryptjs
+3. JWT created with `jose`, stored as HttpOnly cookie (7 day expiry)
+4. `proxy.ts` reads cookie on every request, redirects unauthenticated users
+5. `dal.ts` `verifySession()` is called in every Server Component to verify auth
+
+### Database Schema
+
+```
+User ──── VendorProfile ──── EventInquiry[]
+```
+
+---
+
+## Local Development
+
+### 1. Clone & Install
+
+```bash
+git clone https://github.com/satyaabrata/starvnt-vendor-dashboard.git
+cd starvnt-vendor-dashboard
+npm install
+```
+
+### 2. Set up Supabase
+
+1. Create a project at [supabase.com](https://supabase.com)
+2. Go to **Settings → Database → Connection string → URI**
+3. Copy the connection string
+
+### 3. Configure Environment
+
+```bash
+# .env
+DATABASE_URL="postgresql://postgres.[project-ref]:[password]@aws-0-[region].pooler.supabase.com:6543/postgres?pgbouncer=true"
+SESSION_SECRET="your-random-secret-min-32-characters"
+```
+
+### 4. Push Schema & Generate Client
+
+```bash
+npx prisma db push
+npx prisma generate
+```
+
+### 5. Run Dev Server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 6. Seed Demo Data (Optional)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+curl -X POST http://localhost:3000/api/seed
+# Demo credentials: demo@starvnt.com / password123
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## Deployment on Vercel
 
-To learn more about Next.js, take a look at the following resources:
+1. Push to GitHub (already done)
+2. Go to [vercel.com/new](https://vercel.com/new) and import the repo
+3. Add environment variables:
+   - `DATABASE_URL` — Supabase connection string
+   - `SESSION_SECRET` — Random 32+ char secret
+4. Deploy — `prisma generate && next build` runs automatically
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Demo Credentials
 
-## Deploy on Vercel
+After seeding:
+- **Email:** `demo@starvnt.com`
+- **Password:** `password123`
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Author
+
+**Satyabrata Das**  
+Built for StarVnt Entertainment Technical Assessment — June 2025
