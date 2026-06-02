@@ -16,7 +16,7 @@ async function AdminShell({ children }: { children: React.ReactNode }) {
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex h-screen overflow-hidden bg-slate-50">
+    <div className="flex h-screen overflow-hidden bg-background">
       <AdminSidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Suspense

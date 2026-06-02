@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogOut, User } from "lucide-react";
+import { LogOut, User, ChevronDown } from "lucide-react";
 import Link from "next/link";
 
 interface HeaderProps {
@@ -20,32 +20,40 @@ export function Header({ userName, role = "VENDOR" }: HeaderProps) {
   const profileHref = role === "ADMIN" ? "/admin" : "/dashboard/profile";
 
   return (
-    <header className="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between shrink-0">
+    <header className="h-14 bg-white border-b border-slate-100 px-6 flex items-center justify-between shrink-0">
       <div />
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2">
         {role === "ADMIN" && (
-          <Badge className="bg-purple-100 text-purple-700 border-purple-200 text-xs">Admin</Badge>
+          <Badge className="bg-violet-50 text-violet-600 border-violet-200 text-[11px] font-semibold px-2 py-0.5 rounded-md">
+            Admin
+          </Badge>
         )}
         <DropdownMenu>
           <DropdownMenuTrigger
-            render={<Button variant="ghost" className="flex items-center gap-2 h-auto py-1.5 px-2" />}
+            render={
+              <Button
+                variant="ghost"
+                className="flex items-center gap-2 h-8 px-2 rounded-lg hover:bg-slate-50"
+              />
+            }
           >
-            <Avatar className="w-8 h-8">
-              <AvatarFallback className="bg-primary text-primary-foreground text-xs font-bold">
+            <Avatar className="w-7 h-7">
+              <AvatarFallback className="bg-primary text-white text-[11px] font-bold">
                 {initials}
               </AvatarFallback>
             </Avatar>
-            <span className="text-sm font-medium text-slate-700 hidden sm:block">{userName}</span>
+            <span className="text-[13px] font-medium text-slate-700 hidden sm:block">{userName}</span>
+            <ChevronDown className="w-3.5 h-3.5 text-slate-400 hidden sm:block" />
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48">
-            <DropdownMenuItem render={<Link href={profileHref} />} className="flex items-center gap-2">
-              <User className="w-4 h-4" /> Profile
+          <DropdownMenuContent align="end" className="w-44">
+            <DropdownMenuItem render={<Link href={profileHref} />} className="flex items-center gap-2 text-[13px]">
+              <User className="w-3.5 h-3.5" /> Profile
             </DropdownMenuItem>
             <DropdownMenuItem
-              className="flex items-center gap-2 text-red-600 focus:text-red-600"
+              className="flex items-center gap-2 text-[13px] text-red-500 focus:text-red-500"
               onClick={() => logout()}
             >
-              <LogOut className="w-4 h-4" /> Sign Out
+              <LogOut className="w-3.5 h-3.5" /> Sign Out
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
