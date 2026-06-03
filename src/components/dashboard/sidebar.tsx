@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard, User, ClipboardList, ShoppingCart,
-  FileText, Receipt, Star, Zap, ChevronLeft, ChevronRight,
+  FileText, Receipt, Star, Zap, Menu,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSidebar } from "./mobile-nav";
@@ -33,23 +33,37 @@ export function Sidebar() {
       )}
       style={{ background: "var(--sidebar)" }}
     >
-      {/* Logo */}
+      {/* Logo + Toggle */}
       <div
-        className={cn(
-          "flex items-center border-b transition-all duration-300",
-          isCollapsed ? "px-0 py-5 justify-center" : "px-5 py-5 gap-2.5"
-        )}
+        className="flex items-center gap-2.5 px-3 py-4 border-b"
         style={{ borderColor: "var(--sidebar-border)" }}
       >
-        <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center shadow-sm shrink-0">
-          <Zap className="w-3.5 h-3.5 text-white fill-white" />
-        </div>
+        {/* Three-bar toggle — desktop only */}
+        <button
+          onClick={toggleCollapse}
+          className="hidden lg:flex items-center justify-center w-7 h-7 rounded-lg hover:bg-white/10 transition-colors text-white/60 hover:text-white shrink-0"
+          title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+        >
+          <Menu className="w-4 h-4" />
+        </button>
+
         {!isCollapsed && (
-          <div className="overflow-hidden">
-            <p className="text-[13px] font-semibold text-white tracking-wide whitespace-nowrap">StarVnt</p>
-            <p className="text-[10px] font-medium whitespace-nowrap" style={{ color: "oklch(0.6 0.01 264)" }}>
-              Vendor Portal
-            </p>
+          <div className="flex items-center gap-2 overflow-hidden">
+            <div className="w-6 h-6 rounded-md bg-primary flex items-center justify-center shadow-sm shrink-0">
+              <Zap className="w-3 h-3 text-white fill-white" />
+            </div>
+            <div>
+              <p className="text-[13px] font-semibold text-white tracking-wide whitespace-nowrap leading-none">StarVnt</p>
+              <p className="text-[10px] font-medium whitespace-nowrap" style={{ color: "oklch(0.6 0.01 264)" }}>
+                Vendor Portal
+              </p>
+            </div>
+          </div>
+        )}
+
+        {isCollapsed && (
+          <div className="w-6 h-6 rounded-md bg-primary flex items-center justify-center shadow-sm mx-auto">
+            <Zap className="w-3 h-3 text-white fill-white" />
           </div>
         )}
       </div>
@@ -91,23 +105,8 @@ export function Sidebar() {
         })}
       </nav>
 
-      {/* Collapse toggle — desktop only */}
-      <div
-        className="hidden lg:flex border-t items-center justify-center py-3"
-        style={{ borderColor: "var(--sidebar-border)" }}
-      >
-        <button
-          onClick={toggleCollapse}
-          className="flex items-center justify-center w-7 h-7 rounded-lg hover:bg-white/10 transition-colors text-white/40 hover:text-white/80"
-          title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-        >
-          {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
-        </button>
-      </div>
-
-      {/* Footer — only when expanded */}
       {!isCollapsed && (
-        <div className="px-5 pb-3 text-[10px] font-medium" style={{ color: "oklch(0.38 0.01 264)" }}>
+        <div className="px-5 py-3 border-t text-[10px] font-medium" style={{ borderColor: "var(--sidebar-border)", color: "oklch(0.38 0.01 264)" }}>
           StarVnt Entertainment © 2025
         </div>
       )}
