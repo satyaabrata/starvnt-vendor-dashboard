@@ -2,7 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, User, ClipboardList, ShoppingCart, FileText, Receipt, Star, Zap } from "lucide-react";
+import {
+  LayoutDashboard, User, ClipboardList, ShoppingCart,
+  FileText, Receipt, Star, Zap, ChevronLeft, ChevronRight,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSidebar } from "./mobile-nav";
 
@@ -18,32 +21,46 @@ const navItems = [
 
 export function Sidebar() {
   const pathname = usePathname();
-  const { isOpen, close } = useSidebar();
+  const { isOpen, isCollapsed, close, toggleCollapse } = useSidebar();
 
   return (
     <aside
       className={cn(
-        "fixed inset-y-0 left-0 z-40 w-60 flex flex-col shrink-0 transition-transform duration-300 lg:static lg:translate-x-0",
-        isOpen ? "translate-x-0" : "-translate-x-full"
+        "fixed inset-y-0 left-0 z-40 flex flex-col shrink-0 transition-all duration-300 ease-in-out",
+        "lg:static lg:translate-x-0",
+        isOpen ? "translate-x-0" : "-translate-x-full",
+        isCollapsed ? "w-14" : "w-60"
       )}
       style={{ background: "var(--sidebar)" }}
     >
-      <div className="px-5 py-5 border-b" style={{ borderColor: "var(--sidebar-border)" }}>
-        <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center shadow-sm">
-            <Zap className="w-3.5 h-3.5 text-white fill-white" />
-          </div>
-          <div>
-            <p className="text-[13px] font-semibold text-white tracking-wide">StarVnt</p>
-            <p className="text-[10px] font-medium" style={{ color: "oklch(0.6 0.01 264)" }}>Vendor Portal</p>
-          </div>
+      {/* Logo */}
+      <div
+        className={cn(
+          "flex items-center border-b transition-all duration-300",
+          isCollapsed ? "px-0 py-5 justify-center" : "px-5 py-5 gap-2.5"
+        )}
+        style={{ borderColor: "var(--sidebar-border)" }}
+      >
+        <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center shadow-sm shrink-0">
+          <Zap className="w-3.5 h-3.5 text-white fill-white" />
         </div>
+        {!isCollapsed && (
+          <div className="overflow-hidden">
+            <p className="text-[13px] font-semibold text-white tracking-wide whitespace-nowrap">StarVnt</p>
+            <p className="text-[10px] font-medium whitespace-nowrap" style={{ color: "oklch(0.6 0.01 264)" }}>
+              Vendor Portal
+            </p>
+          </div>
+        )}
       </div>
 
-      <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
-        <p className="text-[10px] font-semibold uppercase tracking-widest px-2 pb-2" style={{ color: "oklch(0.45 0.01 264)" }}>
-          Menu
-        </p>
+      {/* Nav */}
+      <nav className={cn("flex-1 py-4 space-y-0.5 overflow-y-auto overflow-x-hidden", isCollapsed ? "px-1.5" : "px-3")}>
+        {!isCollapsed && (
+          <p className="text-[10px] font-semibold uppercase tracking-widest px-2 pb-2" style={{ color: "oklch(0.45 0.01 264)" }}>
+            Menu
+          </p>
+        )}
         {navItems.map(({ href, label, icon: Icon, exact }) => {
           const active = exact ? pathname === href : pathname.startsWith(href);
           return (
@@ -51,23 +68,49 @@ export function Sidebar() {
               key={href}
               href={href}
               onClick={close}
+              title={isCollapsed ? label : undefined}
               className={cn(
-                "flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[13px] font-medium transition-all duration-150",
+                "flex items-center rounded-lg text-[13px] font-medium transition-all duration-150 group relative",
+                isCollapsed ? "justify-center p-2.5" : "gap-2.5 px-2.5 py-2",
                 active
                   ? "bg-primary text-white shadow-sm"
                   : "hover:bg-white/8 text-white/60 hover:text-white/90"
               )}
             >
               <Icon className={cn("w-3.75 h-3.75 shrink-0", active ? "opacity-100" : "opacity-60")} />
-              {label}
+              {!isCollapsed && <span className="truncate">{label}</span>}
+
+              {/* Tooltip when collapsed */}
+              {isCollapsed && (
+                <div className="absolute left-full ml-2 px-2 py-1 bg-slate-800 text-white text-xs rounded-md whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
+                  {label}
+                </div>
+              )}
             </Link>
           );
         })}
       </nav>
 
-      <div className="px-5 py-3 border-t text-[10px] font-medium" style={{ borderColor: "var(--sidebar-border)", color: "oklch(0.38 0.01 264)" }}>
-        StarVnt Entertainment © 2025
+      {/* Collapse toggle — desktop only */}
+      <div
+        className="hidden lg:flex border-t items-center justify-center py-3"
+        style={{ borderColor: "var(--sidebar-border)" }}
+      >
+        <button
+          onClick={toggleCollapse}
+          className="flex items-center justify-center w-7 h-7 rounded-lg hover:bg-white/10 transition-colors text-white/40 hover:text-white/80"
+          title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+        >
+          {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+        </button>
       </div>
+
+      {/* Footer — only when expanded */}
+      {!isCollapsed && (
+        <div className="px-5 pb-3 text-[10px] font-medium" style={{ color: "oklch(0.38 0.01 264)" }}>
+          StarVnt Entertainment © 2025
+        </div>
+      )}
     </aside>
   );
 }

@@ -4,9 +4,17 @@ import { useState, createContext, useContext } from "react";
 
 const SidebarContext = createContext<{
   isOpen: boolean;
+  isCollapsed: boolean;
   toggle: () => void;
   close: () => void;
-}>({ isOpen: false, toggle: () => {}, close: () => {} });
+  toggleCollapse: () => void;
+}>({
+  isOpen: false,
+  isCollapsed: false,
+  toggle: () => {},
+  close: () => {},
+  toggleCollapse: () => {},
+});
 
 export function useSidebar() {
   return useContext(SidebarContext);
@@ -14,12 +22,16 @@ export function useSidebar() {
 
 export function SidebarProvider({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
   return (
     <SidebarContext.Provider
       value={{
         isOpen,
+        isCollapsed,
         toggle: () => setIsOpen((v) => !v),
         close: () => setIsOpen(false),
+        toggleCollapse: () => setIsCollapsed((v) => !v),
       }}
     >
       {children}
