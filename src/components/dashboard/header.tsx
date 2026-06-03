@@ -7,8 +7,9 @@ import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogOut, User, ChevronDown } from "lucide-react";
+import { LogOut, User, ChevronDown, Menu } from "lucide-react";
 import Link from "next/link";
+import { useSidebar } from "./mobile-nav";
 
 interface HeaderProps {
   userName: string;
@@ -18,10 +19,22 @@ interface HeaderProps {
 export function Header({ userName, role = "VENDOR" }: HeaderProps) {
   const initials = userName.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
   const profileHref = role === "ADMIN" ? "/admin" : "/dashboard/profile";
+  const { toggle } = useSidebar();
 
   return (
-    <header className="h-14 bg-white border-b border-slate-100 px-6 flex items-center justify-between shrink-0">
-      <div />
+    <header className="h-14 bg-white border-b border-slate-100 px-4 sm:px-6 flex items-center justify-between shrink-0">
+      {/* Hamburger — mobile only */}
+      <button
+        onClick={toggle}
+        className="lg:hidden p-2 rounded-lg text-slate-500 hover:bg-slate-100 transition-colors"
+        aria-label="Toggle menu"
+      >
+        <Menu className="w-5 h-5" />
+      </button>
+
+      <div className="hidden lg:block" />
+
+      {/* Right side */}
       <div className="flex items-center gap-2">
         {role === "ADMIN" && (
           <Badge className="bg-violet-50 text-violet-600 border-violet-200 text-[11px] font-semibold px-2 py-0.5 rounded-md">

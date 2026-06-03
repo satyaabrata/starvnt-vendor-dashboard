@@ -7,6 +7,7 @@ import {
   Receipt, Star, Shield, BarChart3, Bell, Zap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useSidebar } from "@/components/dashboard/mobile-nav";
 
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
@@ -22,9 +23,16 @@ const navItems = [
 
 export function AdminSidebar() {
   const pathname = usePathname();
+  const { isOpen, close } = useSidebar();
+
   return (
-    <aside className="w-60 flex flex-col shrink-0" style={{ background: "var(--sidebar)" }}>
-      {/* Logo */}
+    <aside
+      className={cn(
+        "fixed inset-y-0 left-0 z-40 w-60 flex flex-col shrink-0 transition-transform duration-300 lg:static lg:translate-x-0",
+        isOpen ? "translate-x-0" : "-translate-x-full"
+      )}
+      style={{ background: "var(--sidebar)" }}
+    >
       <div className="px-5 py-5 border-b" style={{ borderColor: "var(--sidebar-border)" }}>
         <div className="flex items-center gap-2.5">
           <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center shadow-sm">
@@ -37,7 +45,6 @@ export function AdminSidebar() {
         </div>
       </div>
 
-      {/* Nav */}
       <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
         <p className="text-[10px] font-semibold uppercase tracking-widest px-2 pb-2" style={{ color: "oklch(0.45 0.01 264)" }}>
           Management
@@ -48,6 +55,7 @@ export function AdminSidebar() {
             <Link
               key={href}
               href={href}
+              onClick={close}
               className={cn(
                 "flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[13px] font-medium transition-all duration-150",
                 active

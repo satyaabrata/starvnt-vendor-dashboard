@@ -24,7 +24,7 @@ export default async function AdminCompliancePage() {
         <p className="text-slate-500 text-sm mt-1">Track document validity and certifications</p>
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {[
           { label: "Expired Documents", count: expired.length, icon: AlertTriangle, color: "text-red-600 bg-red-50" },
           { label: "Expiring in 30 days", count: expiringSoon.length, icon: Clock, color: "text-amber-600 bg-amber-50" },

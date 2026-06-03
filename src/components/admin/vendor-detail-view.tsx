@@ -133,14 +133,16 @@ export function VendorDetailView({ vendor }: { vendor: never }) {
       )}
 
       <Tabs defaultValue="overview">
-        <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="documents">Documents ({v.documents.length})</TabsTrigger>
-          <TabsTrigger value="orders">Orders ({v.purchaseOrders.length})</TabsTrigger>
-          <TabsTrigger value="contracts">Contracts ({v.contracts.length})</TabsTrigger>
-          <TabsTrigger value="invoices">Invoices ({v.invoices.length})</TabsTrigger>
-          <TabsTrigger value="performance">Performance</TabsTrigger>
-        </TabsList>
+        <div className="overflow-x-auto">
+          <TabsList className="w-max min-w-full">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="documents">Docs ({v.documents.length})</TabsTrigger>
+            <TabsTrigger value="orders">Orders ({v.purchaseOrders.length})</TabsTrigger>
+            <TabsTrigger value="contracts">Contracts ({v.contracts.length})</TabsTrigger>
+            <TabsTrigger value="invoices">Invoices ({v.invoices.length})</TabsTrigger>
+            <TabsTrigger value="performance">Performance</TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value="overview" className="mt-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
