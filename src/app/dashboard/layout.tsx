@@ -1,5 +1,7 @@
 import { Suspense } from "react";
 import { verifySession } from "@/lib/dal";
+
+export const dynamic = "force-dynamic";
 import { Sidebar } from "@/components/dashboard/sidebar";
 import { Header } from "@/components/dashboard/header";
 import { Skeleton } from "@/components/ui/skeleton";

@@ -1,5 +1,7 @@
 import { Suspense } from "react";
 import { verifyAdmin } from "@/lib/dal";
+
+export const dynamic = "force-dynamic";
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
 import { Header } from "@/components/dashboard/header";
 import { Skeleton } from "@/components/ui/skeleton";
