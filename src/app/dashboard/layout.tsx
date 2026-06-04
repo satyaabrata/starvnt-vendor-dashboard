@@ -1,7 +1,6 @@
 import { Suspense } from "react";
 import { verifySession } from "@/lib/dal";
 
-export const dynamic = "force-dynamic";
 import { Sidebar } from "@/components/dashboard/sidebar";
 import { Header } from "@/components/dashboard/header";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -21,8 +20,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <SidebarProvider>
       <div className="flex h-screen overflow-hidden bg-background">
-        <Sidebar />
-        <SidebarOverlay />
+        <Suspense fallback={null}><Sidebar /></Suspense>
+        <Suspense fallback={null}><SidebarOverlay /></Suspense>
         <div className="flex-1 flex flex-col overflow-hidden min-w-0">
           <Suspense
             fallback={

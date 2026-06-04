@@ -1,7 +1,6 @@
 import { Suspense } from "react";
 import { verifyAdmin } from "@/lib/dal";
 
-export const dynamic = "force-dynamic";
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
 import { Header } from "@/components/dashboard/header";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -21,8 +20,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   return (
     <SidebarProvider>
       <div className="flex h-screen overflow-hidden bg-background">
-        <AdminSidebar />
-        <SidebarOverlay />
+        <Suspense fallback={null}><AdminSidebar /></Suspense>
+        <Suspense fallback={null}><SidebarOverlay /></Suspense>
         <div className="flex-1 flex flex-col overflow-hidden min-w-0">
           <Suspense
             fallback={
