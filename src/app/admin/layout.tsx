@@ -20,8 +20,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   return (
     <SidebarProvider>
       <div className="flex h-screen overflow-hidden bg-background">
-        <Suspense fallback={null}><AdminSidebar /></Suspense>
-        <Suspense fallback={null}><SidebarOverlay /></Suspense>
+        <AdminSidebar />
+        <SidebarOverlay />
         <div className="flex-1 flex flex-col overflow-hidden min-w-0">
           <Suspense
             fallback={

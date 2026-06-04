@@ -20,8 +20,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <SidebarProvider>
       <div className="flex h-screen overflow-hidden bg-background">
-        <Suspense fallback={null}><Sidebar /></Suspense>
-        <Suspense fallback={null}><SidebarOverlay /></Suspense>
+        <Sidebar />
+        <SidebarOverlay />
         <div className="flex-1 flex flex-col overflow-hidden min-w-0">
           <Suspense
             fallback={
