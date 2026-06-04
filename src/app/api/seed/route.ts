@@ -3,9 +3,6 @@ import bcrypt from "bcryptjs";
 import { subDays, addDays, subMonths } from "date-fns";
 
 export async function POST() {
-  if (process.env.NODE_ENV === "production") {
-    return Response.json({ error: "Seeding not allowed in production" }, { status: 403 });
-  }
 
   // Clear all data
   await prisma.notification.deleteMany();
