@@ -5,11 +5,7 @@ import { PublicInquiryForm } from "@/components/inquiries/public-inquiry-form";
 import { MapPin, Phone, Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { cacheLife } from "next/cache";
-
 async function getVendor(vendorId: string) {
-  "use cache";
-  cacheLife("minutes");
   return prisma.vendorProfile.findUnique({
     where: { id: vendorId },
     include: { user: { select: { name: true, email: true } } },

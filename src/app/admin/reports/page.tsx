@@ -2,12 +2,7 @@ import { verifyAdmin } from "@/lib/dal";
 import { prisma } from "@/lib/db";
 import { ReportsDashboard } from "@/components/admin/reports-dashboard";
 import { subMonths, startOfMonth, format } from "date-fns";
-import { cacheLife } from "next/cache";
-
 async function getReportData() {
-  "use cache";
-  cacheLife("minutes");
-
   const [spendByVendor, monthlySpend, categoryBreakdown, invoiceStats, poStats, contractStats] =
     await Promise.all([
       prisma.vendorProfile.findMany({
