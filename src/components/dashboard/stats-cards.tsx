@@ -51,18 +51,20 @@ export function StatsCards({ totalInquiries, confirmed, pending, totalRevenue }:
   ];
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 gap-4 min-[480px]:grid-cols-2 lg:grid-cols-4">
       {stats.map((s, i) => (
         <div
           key={s.key}
-          className="bg-white rounded-xl border border-slate-100 p-5 flex items-center gap-4 hover:shadow-md hover:shadow-slate-100 transition-shadow duration-200"
+          className="flex items-start gap-4 rounded-xl border border-slate-100 bg-white p-4 transition-shadow duration-200 hover:shadow-md hover:shadow-slate-100 sm:p-5"
         >
-          <div className={`${s.bg} ${s.text} p-2.5 rounded-xl`}>
+          <div className={`${s.bg} ${s.text} rounded-xl p-2.5 shrink-0`}>
             <s.icon className="w-4.5 h-4.5" />
           </div>
-          <div>
-            <p className="text-2xl font-semibold text-slate-900 tracking-tight">{values[i]}</p>
-            <p className="text-[11px] font-medium text-slate-400 mt-0.5">{s.label}</p>
+          <div className="min-w-0 flex-1">
+            <p className="break-words text-[clamp(1.75rem,6vw,2.25rem)] font-semibold leading-[1.05] tracking-tight text-slate-900">
+              {values[i]}
+            </p>
+            <p className="mt-1 text-sm font-medium leading-5 text-slate-400">{s.label}</p>
           </div>
         </div>
       ))}

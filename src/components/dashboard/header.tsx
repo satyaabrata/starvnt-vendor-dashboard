@@ -22,7 +22,7 @@ export function Header({ userName, role = "VENDOR" }: HeaderProps) {
   const { toggle } = useSidebar();
 
   return (
-    <header className="h-14 bg-white border-b border-slate-100 px-4 sm:px-6 flex items-center justify-between shrink-0">
+    <header className="flex h-14 shrink-0 items-center justify-between border-b border-slate-100 bg-white px-3 sm:px-6">
       {/* Hamburger — mobile only */}
       <button
         onClick={toggle}
@@ -35,9 +35,9 @@ export function Header({ userName, role = "VENDOR" }: HeaderProps) {
       <div className="hidden lg:block" />
 
       {/* Right side */}
-      <div className="flex items-center gap-2">
+      <div className="flex min-w-0 items-center gap-2">
         {role === "ADMIN" && (
-          <Badge className="bg-violet-50 text-violet-600 border-violet-200 text-[11px] font-semibold px-2 py-0.5 rounded-md">
+          <Badge className="rounded-md border-violet-200 bg-violet-50 px-2 py-0.5 text-[11px] font-semibold text-violet-600">
             Admin
           </Badge>
         )}
@@ -46,7 +46,7 @@ export function Header({ userName, role = "VENDOR" }: HeaderProps) {
             render={
               <Button
                 variant="ghost"
-                className="flex items-center gap-2 h-8 px-2 rounded-lg hover:bg-slate-50"
+                className="flex h-8 min-w-0 items-center gap-2 rounded-lg px-2 hover:bg-slate-50"
               />
             }
           >
@@ -55,7 +55,7 @@ export function Header({ userName, role = "VENDOR" }: HeaderProps) {
                 {initials}
               </AvatarFallback>
             </Avatar>
-            <span className="text-[13px] font-medium text-slate-700 hidden sm:block">{userName}</span>
+            <span className="hidden max-w-[9rem] truncate text-[13px] font-medium text-slate-700 sm:block">{userName}</span>
             <ChevronDown className="w-3.5 h-3.5 text-slate-400 hidden sm:block" />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-44">

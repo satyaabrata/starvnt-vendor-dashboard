@@ -2,7 +2,8 @@ import { PrismaClient } from "@/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 
 function createPrismaClient() {
-  const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
+  // max:1 for serverless — each function instance needs only one connection
+  const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL!, max: 1 });
   return new PrismaClient({ adapter });
 }
 

@@ -2,18 +2,18 @@ import { verifyAdmin } from "@/lib/dal";
 import { prisma } from "@/lib/db";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Users, ShoppingCart, FileText, Receipt, Clock, CheckCircle, AlertTriangle } from "lucide-react";
+import { Users, ShoppingCart, FileText, Receipt, AlertTriangle } from "lucide-react";
 import Link from "next/link";
-import { format, addDays } from "date-fns";
+import { addDays } from "date-fns";
 
 export default async function AdminDashboardPage() {
   await verifyAdmin();
 
   const [
-    totalVendors, pendingVendors, approvedVendors,
-    totalPOs, activePOs,
+    totalVendors, pendingVendors,
+    , totalPOs, activePOs,
     totalContracts, expiringContracts,
-    totalInvoices, pendingInvoices, overdueInvoices,
+    , pendingInvoices, overdueInvoices,
     totalSpend, recentVendors,
   ] = await Promise.all([
     prisma.vendorProfile.count(),
@@ -38,7 +38,7 @@ export default async function AdminDashboardPage() {
     { label: "Total Vendors", value: totalVendors, sub: `${pendingVendors} pending approval`, icon: Users, color: "text-blue-600", bg: "bg-blue-50", href: "/admin/vendors" },
     { label: "Purchase Orders", value: totalPOs, sub: `${activePOs} active`, icon: ShoppingCart, color: "text-purple-600", bg: "bg-purple-50", href: "/admin/purchase-orders" },
     { label: "Contracts", value: totalContracts, sub: `${expiringContracts} expiring soon`, icon: FileText, color: "text-amber-600", bg: "bg-amber-50", href: "/admin/contracts" },
-    { label: "Total Paid", value: `₹${(totalSpend._sum.amount ?? 0).toLocaleString("en-IN")}`, sub: `${pendingInvoices} invoices pending`, icon: Receipt, color: "text-emerald-600", bg: "bg-emerald-50", href: "/admin/invoices" },
+    { label: "Total Paid", value: `₹${(totalSpend?._sum?.amount ?? 0).toLocaleString("en-IN")}`, sub: `${pendingInvoices} invoices pending`, icon: Receipt, color: "text-emerald-600", bg: "bg-emerald-50", href: "/admin/invoices" },
   ];
 
   const alerts = [
@@ -50,35 +50,37 @@ export default async function AdminDashboardPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">Admin Dashboard</h1>
-        <p className="text-slate-500 text-sm mt-1">StarVnt Vendor Management System</p>
+        <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">Admin Dashboard</h1>
+        <p className="mt-1 text-sm text-slate-500 sm:text-base">StarVnt Vendor Management System</p>
       </div>
 
       {alerts.length > 0 && (
         <div className="space-y-2">
           {alerts.map((a) => (
             <Link key={a.href} href={a.href}>
-              <div className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium cursor-pointer ${a.type === "error" ? "bg-red-50 text-red-700 border border-red-200" : "bg-amber-50 text-amber-700 border border-amber-200"}`}>
+              <div className={`flex items-start gap-3 rounded-lg border px-4 py-3 text-sm font-medium cursor-pointer sm:items-center ${a.type === "error" ? "bg-red-50 text-red-700 border-red-200" : "bg-amber-50 text-amber-700 border-amber-200"}`}>
                 <AlertTriangle className="w-4 h-4 shrink-0" />
-                {a.msg} →
+                <span className="leading-5">{a.msg} →</span>
               </div>
             </Link>
           ))}
         </div>
       )}
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 gap-4 min-[480px]:grid-cols-2 xl:grid-cols-4">
         {stats.map(({ label, value, sub, icon: Icon, color, bg, href }) => (
           <Link key={label} href={href}>
-            <Card className="border-0 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
-              <CardContent className="p-5 flex items-center gap-4">
-                <div className={`${bg} ${color} p-3 rounded-xl`}>
-                  <Icon className="w-5 h-5" />
+            <Card className="h-full cursor-pointer border-0 shadow-sm transition-shadow hover:shadow-md">
+              <CardContent className="flex h-full items-start gap-3 p-4 sm:gap-4 sm:p-5">
+                <div className={`${bg} ${color} mt-0.5 rounded-xl p-3 shrink-0`}>
+                  <Icon className="h-5 w-5" />
                 </div>
-                <div>
-                  <p className="text-2xl font-bold text-slate-900">{value}</p>
-                  <p className="text-xs font-medium text-slate-700">{label}</p>
-                  <p className="text-xs text-slate-400 mt-0.5">{sub}</p>
+                <div className="min-w-0 flex-1">
+                  <p className="break-words text-[clamp(1.75rem,6vw,2.25rem)] font-bold leading-[1.05] tracking-tight text-slate-900">
+                    {value}
+                  </p>
+                  <p className="mt-2 text-sm font-semibold leading-5 text-slate-700 sm:text-[0.95rem]">{label}</p>
+                  <p className="mt-1 text-xs leading-5 text-slate-400 sm:text-sm">{sub}</p>
                 </div>
               </CardContent>
             </Card>
@@ -96,10 +98,10 @@ export default async function AdminDashboardPage() {
             <div className="space-y-3">
               {recentVendors.map((v) => (
                 <Link key={v.id} href={`/admin/vendors/${v.id}`}>
-                  <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
-                    <div>
-                      <p className="text-sm font-medium text-slate-800">{v.businessName}</p>
-                      <p className="text-xs text-slate-500">{v.category} · {v.user.email}</p>
+                  <div className="flex flex-col gap-3 rounded-lg bg-slate-50 p-3 transition-colors hover:bg-slate-100 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium text-slate-800 sm:text-base">{v.businessName}</p>
+                      <p className="break-all text-xs text-slate-500 sm:text-sm">{v.category} · {v.user.email}</p>
                     </div>
                     <Badge variant="outline" className={`text-xs capitalize ${
                       v.status === "APPROVED" ? "bg-emerald-50 text-emerald-700 border-emerald-200" :
@@ -129,9 +131,9 @@ export default async function AdminDashboardPage() {
                 { label: "View Reports", href: "/admin/reports", icon: Receipt, color: "bg-emerald-50 text-emerald-700" },
               ].map(({ label, href, icon: Icon, color }) => (
                 <Link key={href} href={href}>
-                  <div className={`${color} p-4 rounded-xl flex flex-col items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity`}>
+                  <div className={`${color} flex min-h-28 flex-col items-center justify-center gap-2 rounded-xl p-4 text-center cursor-pointer transition-opacity hover:opacity-80`}>
                     <Icon className="w-5 h-5" />
-                    <span className="text-xs font-semibold">{label}</span>
+                    <span className="text-sm font-semibold leading-5">{label}</span>
                   </div>
                 </Link>
               ))}

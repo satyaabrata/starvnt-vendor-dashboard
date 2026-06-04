@@ -18,7 +18,7 @@ async function getReportData() {
       Promise.all(Array.from({ length: 6 }, (_, i) => {
         const month = subMonths(new Date(), 5 - i);
         return prisma.payment.aggregate({ where: { paidAt: { gte: startOfMonth(month), lt: startOfMonth(subMonths(month, -1)) } }, _sum: { amount: true } })
-          .then((r) => ({ month: format(month, "MMM"), amount: r._sum.amount ?? 0 }));
+          .then((r) => ({ month: format(month, "MMM"), amount: r?._sum?.amount ?? 0 }));
       })),
       prisma.vendorProfile.groupBy({ by: ["category"], _count: { id: true }, orderBy: { _count: { id: "desc" } } }),
       prisma.invoice.groupBy({ by: ["status"], _count: { id: true }, _sum: { totalAmount: true } }),

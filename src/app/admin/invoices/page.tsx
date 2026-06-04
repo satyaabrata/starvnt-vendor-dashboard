@@ -25,7 +25,7 @@ export default async function AdminInvoicesPage({ searchParams }: { searchParams
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Invoice & Payment Tracking</h1>
           <p className="text-slate-500 text-sm mt-1">
-            Total paid: ₹{(totalPaid._sum.amount ?? 0).toLocaleString("en-IN")} · Pending: ₹{(pendingAmount._sum.totalAmount ?? 0).toLocaleString("en-IN")}
+            Total paid: ₹{(totalPaid?._sum?.amount ?? 0).toLocaleString("en-IN")} · Pending: ₹{(pendingAmount?._sum?.totalAmount ?? 0).toLocaleString("en-IN")}
           </p>
         </div>
         <Button nativeButton={false} render={<Link href="/admin/invoices/new" />} className="flex items-center gap-2">
